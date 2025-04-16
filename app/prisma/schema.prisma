@@ -6,10 +6,165 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
+  engineType = "binary"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  hashedPassword String
+
+  blogLikes BlogLike[]
+  blogComments BlogComment[]
+
+  essayLikes EssayLike[]
+  essayComments EssayComment[]
+
+  poemLikes PoemLike[]
+  poemComments PoemComment[]
+}
+
+model BlogPost {
+  id Int @id @default(autoincrement())
+  title String
+  content String
+  description String?
+  coverImage String? // url or file path\
+  createdAt DateTime @default(now())
+
+  likes BlogLike[]
+  comments BlogComment[]
+}
+
+model BlogLike {
+  id Int @id @default(autoincrement())
+  blogId Int
+  userId Int
+
+  blog BlogPost @relation(fields: [blogId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model BlogComment {
+  id Int @id @default(autoincrement())
+  blogId Int
+  userId Int
+  content String
+
+  blog BlogPost @relation(fields: [blogId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Tag {
+  id Int @id @default(autoincrement())
+  tag String
+  essayId Int
+
+  essay Essay @relation(fields: [essayId], references: [id])
+}
+
+model Essay {
+  id Int @id @default(autoincrement())
+  title String
+  content String
+  description String?
+  coverImage String? // url or file path\
+  createdAt DateTime @default(now())
+  tags Tag[]
+
+  likes EssayLike[]
+  comments EssayComment[]
+}
+
+model EssayLike {
+  id Int @id @default(autoincrement())
+  essayId Int
+  userId Int
+
+  essay Essay @relation(fields: [essayId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model EssayComment {
+  id Int @id @default(autoincrement())
+  essayId Int
+  userId Int
+  content String
+
+  essay Essay @relation(fields: [essayId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Poem {
+  id Int @id @default(autoincrement())
+  title String
+  content String
+  description String?
+
+  likes PoemLike[]
+  comments PoemComment[]
+}
+
+model PoemLike {
+  id Int @id @default(autoincrement())
+  poemId Int
+  userId Int
+
+  poem Poem @relation(fields: [poemId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model PoemComment {
+  id Int @id @default(autoincrement())
+  poemId Int
+  userId Int
+  content String
+
+  poem Poem @relation(fields: [poemId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+
+// ADD THE VIDEO ENTITY STUFF AFTER LOOKING AT THE YOUTUBE API
+
+
+model Book {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  coverImage String?
+
+  reviews BookReview[]
+}
+
+model BookReview {
+  id Int @id @default(autoincrement())
+  rating Int
+  review String?
+  bookId Int
+
+  book Book @relation(fields: [bookId], references: [id])
+}
+
+model Movie {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  coverImage String?
+
+  reviews MovieReview[]
+}
+
+model MovieReview {
+  id Int @id @default(autoincrement())
+  rating Int
+  review String?
+  movieId Int
+
+  movie Movie @relation(fields: [movieId], references: [id])
 }
